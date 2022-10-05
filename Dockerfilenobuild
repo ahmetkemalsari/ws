@@ -1,0 +1,22 @@
+FROM openjdk:11.0.10-jre-slim
+
+RUN apt-get update; apt-get install -y fontconfig libfreetype6 ldap-utils curl telnet
+
+EXPOSE 8088
+
+RUN mkdir /app
+
+RUN mkdir /app/temp
+
+RUN mkdir /app/license
+
+RUN mkdir /app/report-exported-files
+
+RUN chgrp -R 0 /app/ && \
+    chmod -R g=u /app/
+
+COPY ../build/libs/*.jar /app/spring-boot-application.jar
+
+COPY /docker/labkeystore.p12 /app/labkeystore.p12
+
+ENTRYPOINT ["java", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseContainerSupport", "-Djava.security.egd=file:/dev/./urandom","-jar","/app/spring-boot-application.jar"]
