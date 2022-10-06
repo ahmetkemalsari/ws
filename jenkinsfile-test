@@ -1,0 +1,37 @@
+pipeline {
+    agent none
+
+    tools {
+        // Install the Maven version configured as "M3" and add it to the path.
+        maven "maven"
+    }
+
+    stages {
+       stage('Build') {
+           agent {label 'slave2'}
+            steps {
+                
+                // Get some code from a GitHub repository
+                git branch: 'main', url: 'https://github.com/ahmetkemalsari/ws'
+
+                // Run Maven on a Unix agent.
+                sh "mvn -Dmaven.test.failure.ignore=true clean package"
+
+                // To run Maven on a Windows agent, use
+                // bat "mvn -Dmaven.test.failure.ignore=true clean package"
+            }
+        }
+              stage('image') {
+                  agent {label 'slave2'}
+            steps {
+              sh 'docker build -t aksari/ws:lates .'
+            }
+        }
+         stage('deploy') {
+                  agent {label 'slave2'}
+            steps {
+              sh 'docker run -d -p 8088:8088 --name websvr aksari/ws:lates'
+            }
+    }
+}
+}
