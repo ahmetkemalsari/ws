@@ -1,14 +1,14 @@
 pipeline {
-    agent none
+    agent any
 
     tools {
         // Install the Maven version configured as "M3" and add it to the path.
-        maven "maven"
+        maven "Maven"
     }
 
     stages {
        stage('Build') {
-           agent {label 'slave2'}
+          
             steps {
                 
                 // Get some code from a GitHub repository
@@ -22,13 +22,13 @@ pipeline {
             }
         }
               stage('image') {
-                  agent {label 'slave2'}
+              
             steps {
               sh 'docker build -t aksari/ws:lates .'
             }
         }
          stage('deploy') {
-                  agent {label 'slave2'}
+             
             steps {
               sh 'docker run -d -p 8088:8088 --name websvr aksari/ws:lates'
             }
